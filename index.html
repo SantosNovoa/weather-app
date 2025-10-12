@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="background-image: url(assets/images/beautiful-sky-full-stars-trona-ca.jpg); background-size: cover; height: 98.3vh;">
+    <div class="city">
+      <div
+        class="container"
+        style="
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          flex-direction: row-reverse;
+          justify-content: flex-end;
+        "
+      >
+        <button id="toggleTempButton">Toggle Units</button>
+        <div class="temperature-container" style="display: flex;">
+          <p class="degrees">
+
+          </p>
+          <p class="units">
+            
+          </p>
+        </div>
+      </div>
+      <p class="address"></p>
+      <p class="conditions"></p>
+      <p class="humidity"></p>
+    </div>
+    <form id="userSearch">
+      <label for="city-search">Search for a city:</label>
+      <input type="text" id="city-search" maxlength="100" required="" />
+      <input type="submit" value="Submit" />
+    </form>
+    <script>
+      const cityValue = document.getElementById("city-search");
+      const city = document.querySelector(".city");
+      const submitForm = document.getElementById("userSearch");
+      const toggleButton = document.getElementById("toggleTempButton");
+      const tempDiv = document.querySelector(".temperature-container");
+      const addressDiv = document.querySelector(".address");
+      const conditionsDiv = document.querySelector(".conditions");
+      const humidityDiv = document.querySelector(".humidity");
+      const degrees = document.querySelector(".degrees");
+      const units = document.querySelector(".units");
+      let isFahrenheit = true;
+      let currentTemperature;
+      //default city
+
+      const defaultCity =
+        "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Los-Angeles?key=6VBMHFS72XKSB9S5DTTNWQZVQ";
+      fetch(defaultCity, { mode: "cors" })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (response) {
+          let temperature = Math.trunc(response.currentConditions.temp);
+          currentTemperature = temperature;
+          let address = response.address;
+          address = address.replace(/-/g, " ");
+          let conditions = response.currentConditions.conditions;
+          let humidity = Math.trunc(response.currentConditions.humidity);
+          degrees.textContent = `${temperature}`;
+          units.textContent = "°F"
+          addressDiv.textContent = address;
+          conditionsDiv.textContent = conditions;
+          humidityDiv.textContent = `Humidity: ${humidity}%`;
+        });
+
+
+      const stringApi =
+        "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/?key=6VBMHFS72XKSB9S5DTTNWQZVQ";
+
+      submitForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        async function getWeather() {
+          let userSearch = cityValue.value;
+          userSearch = userSearch.replace(/\s+/g, "-");
+          const position = 84;
+          const output = [
+            stringApi.slice(0, position),
+            userSearch,
+            stringApi.slice(position),
+          ].join("");
+
+          const response = await fetch(output, { mode: "cors" });
+          const weatherData = await response.json();
+          console.log(weatherData.currentConditions.feelslike);
+
+          let temperature = Math.trunc(weatherData.currentConditions.temp);
+          currentTemperature = temperature;
+          let address = weatherData.address;
+          address = address.replace(/-/g, " ");
+          let conditions = weatherData.currentConditions.conditions;
+          let humidity = Math.trunc(weatherData.currentConditions.humidity);
+          degrees.textContent = `${temperature}`;
+          units.textContent = "°F"
+          addressDiv.textContent = address;
+          conditionsDiv.textContent = conditions;
+          humidityDiv.textContent = `Humidity: ${humidity}%`;
+          console.log(weatherData);
+        }
+
+        // getGifs();
+        getWeather();
+        submitForm.reset();
+      });
+
+      function fahrenheitToCelsius(fahrenheit) {
+        return ((fahrenheit - 32) * 5) / 9;
+      }
+
+      function celsiusToFahrenheit(celsius) {
+        return (celsius * 9) / 5 + 32;
+      }
+
+      function updateDisplay() {
+        if (isFahrenheit) {
+          degrees.textContent = Math.trunc(currentTemperature);
+          units.textContent = "°F"
+        } else {
+          degrees.textContent = Math.trunc(currentTemperature);
+          units.textContent = "°C"
+        }
+      }
+
+      toggleButton.addEventListener("click", () => {
+        if (isFahrenheit) {
+          currentTemperature = fahrenheitToCelsius(currentTemperature)
+          degrees.textContent = currentTemperature;
+          isFahrenheit = false;
+        } else {
+          currentTemperature = celsiusToFahrenheit(currentTemperature)
+          degrees.textContent = currentTemperature;
+          isFahrenheit = true;
+        }
+        updateDisplay();
+      });
+
+      updateDisplay();
+    </script>
+  </body>
+</html>
