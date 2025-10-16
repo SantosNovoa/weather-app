@@ -4,38 +4,105 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
   </head>
-  <body style="background-image: url(assets/images/beautiful-sky-full-stars-trona-ca.jpg); background-size: cover; height: 98.3vh;">
-    <div class="city">
-      <div
-        class="container"
-        style="
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          flex-direction: row-reverse;
-          justify-content: flex-end;
-        "
-      >
-        <button id="toggleTempButton">Toggle Units</button>
-        <div class="temperature-container" style="display: flex;">
-          <p class="degrees">
+  <body
+    style="
+      background-image: url(assets/images/dennis-schweizer-18nR85wWyLY-unsplash.jpg);
+      background-size: cover;
+      height: 100vh;
+    "
+  >
+    <nav
+      class="navbar bg-dark navbar-expand-lg bg-body-tertiary"
+      data-bs-theme="dark"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Forecast</a>
+        <form class="d-flex" role="search" id="userSearch">
+          <input
+            class="form-control me-2"
+            type="text"
+            placeholder="Search"
+            aria-label="Search"
+            id="city-search"
+          />
+          <button class="btn btn-outline-success" type="submit" value="Submit">
+            Search
+          </button>
+        </form>
+      </div>
+    </nav>
 
-          </p>
-          <p class="units">
-            
-          </p>
+    <div class="header">
+      <div class="container">
+        <div class="address"></div>
+        <div
+          class="temperature-container"
+          style="display: flex; justify-content: center; align-items: center"
+        >
+          <button id="toggleTempButton" style="display: none">
+            Toggle Units
+          </button>
+          <div class="weather-icon-container">
+            <img id="weatherIcon" src="" alt="weather-icon" />
+          </div>
+          <p class="degrees"></p>
+          <div class="unit-button-containers d-flex flex-column">
+            <button class="fahrenheit">F</button>
+            <button class="celsius">C</button>
+          </div>
+        </div>
+        <div class="conditions"></div>
+        <div class="updated"></div>
+        <div class="statistics">
+          <div class="feels-like"></div>
+          <div class="wind-speed"></div>
+          <div class="visibility"></div>
+          <div class="humidity"></div>
+          <div class="dew-point"></div>
+          <div class="uv-index"></div>
         </div>
       </div>
-      <p class="address"></p>
-      <p class="conditions"></p>
-      <p class="humidity"></p>
     </div>
-    <form id="userSearch">
-      <label for="city-search">Search for a city:</label>
-      <input type="text" id="city-search" maxlength="100" required="" />
-      <input type="submit" value="Submit" />
-    </form>
+
+    <div
+      id="carouselExampleControls"
+      class="carousel carousel-light slide"
+      data-bs-wrap="false"
+    >
+      <div class="carousel-inner"></div>
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#carouselExampleControls"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#carouselExampleControls"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
     <script>
       const cityValue = document.getElementById("city-search");
       const city = document.querySelector(".city");
@@ -45,12 +112,38 @@
       const addressDiv = document.querySelector(".address");
       const conditionsDiv = document.querySelector(".conditions");
       const humidityDiv = document.querySelector(".humidity");
+      const feelsLikeDiv = document.querySelector(".feels-like");
+      const windSpeedDiv = document.querySelector(".wind-speed");
+      const visibilityDiv = document.querySelector(".visibility");
+      const dewPointDiv = document.querySelector(".dew-point");
+      const uvIndexDiv = document.querySelector(".uv-index");
       const degrees = document.querySelector(".degrees");
-      const units = document.querySelector(".units");
+      const updatedDiv = document.querySelector(".updated");
       let isFahrenheit = true;
       let currentTemperature;
-      //default city
+      let baseTemperature;
+      const fahButton = document.querySelector(".fahrenheit");
+      const celButton = document.querySelector(".celsius");
+      let api;
+      // returns a timestamp of the latest update in the format HH:MM AM/PM
+      function lastUpdated(epoch) {
+        const date = new Date(epoch * 1000);
 
+        const options = {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+          timeZone: "America/New_York",
+        };
+
+        const timeString = date.toLocaleTimeString("en-US", options);
+
+        console.log(timeString);
+
+        return timeString;
+      }
+
+      //default city
       const defaultCity =
         "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Los-Angeles?key=6VBMHFS72XKSB9S5DTTNWQZVQ";
       fetch(defaultCity, { mode: "cors" })
@@ -58,19 +151,40 @@
           return response.json();
         })
         .then(function (response) {
+          api = defaultCity;
           let temperature = Math.trunc(response.currentConditions.temp);
           currentTemperature = temperature;
+          baseTemperature = Math.trunc(response.currentConditions.temp);
+
           let address = response.address;
           address = address.replace(/-/g, " ");
+
           let conditions = response.currentConditions.conditions;
+
           let humidity = Math.trunc(response.currentConditions.humidity);
+          let feelsLike = Math.trunc(response.currentConditions.feelslike);
+          let windSpeed = response.currentConditions.windspeed;
+          let visibiility = response.currentConditions.visibility;
+          let dewPoint = Math.trunc(response.currentConditions.dew);
+          let uvIndex = response.currentConditions.uvindex;
+          let epoch = response.currentConditions.datetimeEpoch;
+          let iconName = response.currentConditions.icon;
+          const iconPath = `/assets/images/weather-images/${iconName}.png`;
+          document.getElementById("weatherIcon").src = iconPath;
+
           degrees.textContent = `${temperature}`;
-          units.textContent = "°F"
           addressDiv.textContent = address;
           conditionsDiv.textContent = conditions;
-          humidityDiv.textContent = `Humidity: ${humidity}%`;
-        });
+          updatedDiv.textContent = `Updated as of ${lastUpdated(epoch)}`;
 
+          humidityDiv.textContent = `Humidity: ${humidity}%`;
+          feelsLikeDiv.textContent = `Feels like: ${feelsLike}°`;
+          windSpeedDiv.textContent = `Wind: ${windSpeed} mph`;
+          visibilityDiv.textContent = `Visibility: ${visibiility} mi`;
+          dewPointDiv.textContent = `Dew Point: ${dewPoint}°`;
+          uvIndexDiv.textContent = `UV Index: ${uvIndex}`;
+          weeklyForecast();
+        });
 
       const stringApi =
         "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/?key=6VBMHFS72XKSB9S5DTTNWQZVQ";
@@ -88,25 +202,44 @@
             stringApi.slice(position),
           ].join("");
 
+          api = output;
+
           const response = await fetch(output, { mode: "cors" });
           const weatherData = await response.json();
           console.log(weatherData.currentConditions.feelslike);
 
           let temperature = Math.trunc(weatherData.currentConditions.temp);
           currentTemperature = temperature;
+          baseTemperature = Math.trunc(weatherData.currentConditions.temp);
           let address = weatherData.address;
           address = address.replace(/-/g, " ");
           let conditions = weatherData.currentConditions.conditions;
           let humidity = Math.trunc(weatherData.currentConditions.humidity);
+          let feelsLike = Math.trunc(weatherData.currentConditions.feelslike);
+          let windSpeed = weatherData.currentConditions.windspeed;
+          let visibiility = weatherData.currentConditions.visibility;
+          let dewPoint = Math.trunc(weatherData.currentConditions.dew);
+          let uvIndex = weatherData.currentConditions.uvindex;
+          let epoch = weatherData.currentConditions.datetimeEpoch;
+          let iconName = weatherData.currentConditions.icon;
+          const iconPath = `/assets/images/weather-images/${iconName}.svg`;
+          document.getElementById("weatherIcon").src = iconPath;
+
+          updatedDiv.textContent = `Updated as of ${lastUpdated(epoch)}`;
           degrees.textContent = `${temperature}`;
-          units.textContent = "°F"
           addressDiv.textContent = address;
           conditionsDiv.textContent = conditions;
+
           humidityDiv.textContent = `Humidity: ${humidity}%`;
+          feelsLikeDiv.textContent = `Feels like: ${feelsLike}°`;
+          windSpeedDiv.textContent = `Wind: ${windSpeed} mph`;
+          visibilityDiv.textContent = `Visibility: ${visibiility} mi`;
+          dewPointDiv.textContent = `Dew Point: ${dewPoint}°`;
+          uvIndexDiv.textContent = `UV Index: ${uvIndex}`;
           console.log(weatherData);
+          weeklyForecast();
         }
 
-        // getGifs();
         getWeather();
         submitForm.reset();
       });
@@ -122,25 +255,133 @@
       function updateDisplay() {
         if (isFahrenheit) {
           degrees.textContent = Math.trunc(currentTemperature);
-          units.textContent = "°F"
         } else {
           degrees.textContent = Math.trunc(currentTemperature);
-          units.textContent = "°C"
         }
       }
 
-      toggleButton.addEventListener("click", () => {
-        if (isFahrenheit) {
-          currentTemperature = fahrenheitToCelsius(currentTemperature)
-          degrees.textContent = currentTemperature;
-          isFahrenheit = false;
-        } else {
-          currentTemperature = celsiusToFahrenheit(currentTemperature)
-          degrees.textContent = currentTemperature;
-          isFahrenheit = true;
+      // toggleButton.addEventListener("click", () => {
+      //   if (isFahrenheit) {
+      //     currentTemperature = fahrenheitToCelsius(currentTemperature);
+      //     degrees.textContent = currentTemperature;
+      //     isFahrenheit = false;
+      //   } else {
+      //     currentTemperature = celsiusToFahrenheit(currentTemperature);
+      //     degrees.textContent = currentTemperature;
+      //     isFahrenheit = true;
+      //   }
+      //   updateDisplay();
+      // });
+
+      fahButton.addEventListener("click", () => {
+        isFahrenheit = true;
+        fahButton.classList.add("unit-button-active");
+        celButton.classList.remove("unit-button-active");
+        degrees.textContent = baseTemperature;
+        console.log(isFahrenheit);
+      })
+
+      celButton.addEventListener("click", () => {
+        isFahrenheit = false;
+        celButton.classList.add("unit-button-active");
+        fahButton.classList.remove("unit-button-active");
+        currentTemperature = Math.trunc(fahrenheitToCelsius(baseTemperature));
+        degrees.textContent = currentTemperature;
+        console.log(isFahrenheit);
+      })
+
+      async function weeklyForecast() {
+        const response = await fetch(api, { mode: "cors" });
+        const weatherData = await response.json();
+
+        const carouselInner = document.querySelector(".carousel-inner");
+        carouselInner.innerHTML = ""; // clear previous slides if any
+        console.log(carouselExampleControls);
+
+        // loop through the days array
+        for (let i = 0; i < weatherData.days.length; i += 5) {
+          // every 3 days  gets added into a carousel item
+          const carouselItem = document.createElement("div");
+          carouselItem.classList.add("carousel-item");
+          if (i === 0) carouselItem.classList.add("active"); // first slide active
+
+          const cardWrapper = document.createElement("div");
+          cardWrapper.classList.add(
+            "card-wrapper",
+            "container-sm",
+            "d-flex",
+            "justify-content-around"
+          );
+
+          // we'll loop for up to 3 days
+          for (let j = i; j < i + 5 && j < weatherData.days.length; j++) {
+            const dayData = weatherData.days[j];
+
+            const card = document.createElement("div");
+            card.classList.add("card");
+            card.style.width = "12rem";
+
+            // day gets appended to a short string like Mon, Tue, Wed
+            const dateObj = new Date(dayData.datetimeEpoch * 1000);
+            const dayName = dateObj.toLocaleDateString("en-US", {
+              weekday: "short",
+            });
+            const dayNum = dateObj.getDate();
+            const dayLabel = document.createElement("div");
+            dayLabel.classList.add("card-day");
+            if (j === 0) {
+              dayLabel.textContent = "Today";
+            } else {
+              dayLabel.textContent = `${dayName} ${dayNum}`;
+            }
+
+            // icon creation
+            const imgIcon = document.createElement("div");
+            imgIcon.classList.add("weekly-icon");
+            const img = document.createElement("img");
+            img.src = `/assets/images/weather-images/${dayData.icon}.svg`;
+            img.classList.add("card-img-top");
+            img.alt = dayData.conditions;
+
+            imgIcon.appendChild(img);
+
+            const body = document.createElement("div");
+            body.classList.add("card-body");
+
+            const weeklyTempContainer = document.createElement("div");
+            weeklyTempContainer.classList.add(
+              "weekly-temp-container",
+              "d-flex",
+              "justify-content-center",
+              "gap-1"
+            );
+            const tempMax = document.createElement("h5");
+            tempMax.classList.add("card-title");
+            const tempMin = document.createElement("p");
+            tempMin.classList.add("temp-min", "text-body-secondary");
+
+            tempMax.textContent = `${Math.trunc(dayData.tempmax)}°`;
+            tempMin.textContent = `${Math.trunc(dayData.tempmin)}°`;
+
+            weeklyTempContainer.appendChild(tempMax);
+            weeklyTempContainer.appendChild(tempMin);
+
+            const cond = document.createElement("p");
+            cond.classList.add("card-text");
+            cond.textContent = dayData.conditions;
+
+            body.append(weeklyTempContainer, cond);
+            card.append(dayLabel, imgIcon, body);
+            cardWrapper.appendChild(card);
+          }
+
+          // add wrapper to carousel slide
+          carouselItem.appendChild(cardWrapper);
+          carouselInner.appendChild(carouselItem);
         }
-        updateDisplay();
-      });
+      }
+
+      weeklyForecast();
 
       updateDisplay();
     </script>

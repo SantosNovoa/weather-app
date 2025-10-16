@@ -1,0 +1,160 @@
+
+body {
+  display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: .1fr repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+.header {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    margin-top: 5rem;
+    grid-area: 2 / 2 / 3 / 3;
+}
+
+nav {
+  grid-area: 1 / 1 / 2 / 4;
+}
+
+.container {
+    max-width: 550px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0 20px 0;
+}
+
+.statistics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 12px;
+    grid-row-gap: 12px;
+    justify-items: center;
+}
+
+.feels-like {
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.wind-speed {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+.visibility {
+    grid-area: 1 / 3 / 2 / 4;
+}
+
+.humidity {
+    grid-area: 2 / 1 / 3 / 2;
+}
+
+.dew-point {
+    grid-area: 2 / 2 / 3 / 3;
+}
+
+.uv-index {
+   grid-area: 2 / 3 / 3 / 4; 
+}
+
+.address {
+    text-align: center;
+    font-size: 35px;
+}
+.conditions {
+    text-align: center;
+    font-size: 25px;
+}
+
+.updated {
+    margin-bottom: 1rem;
+}
+
+.degrees {
+    font-size: 95px;
+}
+
+/*******************card carousel*******************************/
+
+.card-img-top {
+    height: 64px;
+    width: 64px !important;
+}
+
+.card {
+    background-color: #ffffff00 !important;
+    border: none !important;
+}
+
+#carouselExampleControls {
+    margin-top: 5rem;
+    grid-area: 3 / 2 / 4 / 3;
+}
+
+.carousel-control-prev, 
+.carousel-control-next {
+    bottom: auto !important;
+}
+
+.card-day {
+    text-align: center;
+}
+
+.carousel-inner {
+    margin-top: 60px;
+}
+
+.card-text {
+    text-align: center;
+}
+
+.weekly-icon {
+    display: flex;
+    justify-content: center;
+}
+
+
+/****************button***********************************************************************/
+
+button, input[type="submit"], input[type="reset"] {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+
+
+.fahrenheit,
+.celsius {
+    font-size: 25px;
+}
+
+.fahrenheit:hover,
+.celsius:hover {
+    color: #7d7b79;
+}
+
+.unit-button-containers {
+    padding-left: 1rem;
+}
+
+.unit-button-active {
+    font-size: 45px;
+}
+
+.unit-button-inactive {
+    font-size: 25px;
+    color: #7d7b79;
+}
+
+img#weatherIcon {
+    width: 64px;
+    height: 64px;
+}
