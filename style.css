@@ -5,6 +5,7 @@ body {
     grid-template-rows: .1fr repeat(2, 1fr);
     grid-column-gap: 0px;
     grid-row-gap: 0px;
+    color: white !important;
 }
 
 .header {
@@ -92,6 +93,22 @@ nav {
 #carouselExampleControls {
     margin-top: 5rem;
     grid-area: 3 / 2 / 4 / 3;
+}
+
+.card-title {
+    color: white !important;
+}
+
+.card-text {
+    color: white !important;
+}
+
+.card-day {
+    color: white !important;
+}
+
+.temp-min {
+    color: rgb(131, 131, 131) !important;
 }
 
 .carousel-control-prev, 
