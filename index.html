@@ -222,7 +222,7 @@
           let uvIndex = weatherData.currentConditions.uvindex;
           let epoch = weatherData.currentConditions.datetimeEpoch;
           let iconName = weatherData.currentConditions.icon;
-          const iconPath = `/assets/images/weather-images/${iconName}.svg`;
+          const iconPath = `assets/images/weather-images/${iconName}.svg`;
           document.getElementById("weatherIcon").src = iconPath;
 
           updatedDiv.textContent = `Updated as of ${lastUpdated(epoch)}`;
@@ -339,7 +339,7 @@
             const imgIcon = document.createElement("div");
             imgIcon.classList.add("weekly-icon");
             const img = document.createElement("img");
-            img.src = `/assets/images/weather-images/${dayData.icon}.svg`;
+            img.src = `assets/images/weather-images/${dayData.icon}.svg`;
             img.classList.add("card-img-top");
             img.alt = dayData.conditions;
 
