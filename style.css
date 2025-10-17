@@ -107,10 +107,13 @@ nav {
     color: white !important;
 }
 
-.temp-min {
+.temp-min,
+.degree-two {
     color: rgb(131, 131, 131) !important;
 }
-
+.degree-one {
+    color: white !important;
+}
 .carousel-control-prev, 
 .carousel-control-next {
     bottom: auto !important;
@@ -146,8 +149,6 @@ button, input[type="submit"], input[type="reset"] {
 	outline: inherit;
 }
 
-
-
 .fahrenheit,
 .celsius {
     font-size: 25px;
@@ -164,11 +165,6 @@ button, input[type="submit"], input[type="reset"] {
 
 .unit-button-active {
     font-size: 45px;
-}
-
-.unit-button-inactive {
-    font-size: 25px;
-    color: #7d7b79;
 }
 
 img#weatherIcon {

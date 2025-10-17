@@ -55,7 +55,7 @@
           </div>
           <p class="degrees"></p>
           <div class="unit-button-containers d-flex flex-column">
-            <button class="fahrenheit">F</button>
+            <button class="fahrenheit unit-button-active">F</button>
             <button class="celsius">C</button>
           </div>
         </div>
@@ -122,6 +122,7 @@
       let isFahrenheit = true;
       let currentTemperature;
       let baseTemperature;
+      let lastForecastData = null;
       const fahButton = document.querySelector(".fahrenheit");
       const celButton = document.querySelector(".celsius");
       let api;
@@ -152,6 +153,7 @@
         })
         .then(function (response) {
           api = defaultCity;
+          lastForecastData = response;
           let temperature = Math.trunc(response.currentConditions.temp);
           currentTemperature = temperature;
           baseTemperature = Math.trunc(response.currentConditions.temp);
@@ -206,6 +208,7 @@
 
           const response = await fetch(output, { mode: "cors" });
           const weatherData = await response.json();
+          lastForecastData = weatherData;
           console.log(weatherData.currentConditions.feelslike);
 
           let temperature = Math.trunc(weatherData.currentConditions.temp);
@@ -252,6 +255,14 @@
         return (celsius * 9) / 5 + 32;
       }
 
+      function mphToKmh(miles) {
+        return miles * 1.60934;
+      }
+
+      function kmhToMph(kilometers) {
+        return kilometers * 0.621371;
+      }
+
       function updateDisplay() {
         if (isFahrenheit) {
           degrees.textContent = Math.trunc(currentTemperature);
@@ -259,6 +270,32 @@
           degrees.textContent = Math.trunc(currentTemperature);
         }
       }
+
+      function updateWeeklyForecastUnits() {
+        if (!lastForecastData) return; // skip if data not loaded yet
+
+        const isF = isFahrenheit;
+        const cards = document.querySelectorAll(".card");
+
+        // iterate through all cards (each has max/min)
+        lastForecastData.days.forEach((day, index) => {
+          const tempMaxEl = cards[index]?.querySelector(".card-title");
+          const tempMinEl = cards[index]?.querySelector(".temp-min");
+          if (!tempMaxEl || !tempMinEl) return;
+
+          let max = Math.trunc(day.tempmax);
+          let min = Math.trunc(day.tempmin);
+
+          if (!isF) {
+            max = Math.trunc(fahrenheitToCelsius(max));
+            min = Math.trunc(fahrenheitToCelsius(min));
+          }
+
+          tempMaxEl.textContent = max;
+          tempMinEl.textContent = min;
+        });
+      }
+
 
       // toggleButton.addEventListener("click", () => {
       //   if (isFahrenheit) {
@@ -278,7 +315,7 @@
         fahButton.classList.add("unit-button-active");
         celButton.classList.remove("unit-button-active");
         degrees.textContent = baseTemperature;
-        console.log(isFahrenheit);
+        updateWeeklyForecastUnits();
       })
 
       celButton.addEventListener("click", () => {
@@ -287,7 +324,7 @@
         fahButton.classList.remove("unit-button-active");
         currentTemperature = Math.trunc(fahrenheitToCelsius(baseTemperature));
         degrees.textContent = currentTemperature;
-        console.log(isFahrenheit);
+        updateWeeklyForecastUnits();
       })
 
       async function weeklyForecast() {
@@ -300,7 +337,7 @@
 
         // loop through the days array
         for (let i = 0; i < weatherData.days.length; i += 5) {
-          // every 3 days  gets added into a carousel item
+          // every 5 days  gets added into a carousel item
           const carouselItem = document.createElement("div");
           carouselItem.classList.add("carousel-item");
           if (i === 0) carouselItem.classList.add("active"); // first slide active
@@ -313,7 +350,7 @@
             "justify-content-around"
           );
 
-          // we'll loop for up to 3 days
+          // we'll loop for up to 5 days
           for (let j = i; j < i + 5 && j < weatherData.days.length; j++) {
             const dayData = weatherData.days[j];
 
@@ -357,14 +394,22 @@
             );
             const tempMax = document.createElement("h5");
             tempMax.classList.add("card-title");
+            const degreeOne = document.createElement("h5");
+            degreeOne.classList.add("degree-one")
+            degreeOne.textContent = "°";
             const tempMin = document.createElement("p");
+            const degreeTwo = document.createElement("p");
+            degreeTwo.classList.add("degree-two")
+            degreeTwo.textContent = "°";
             tempMin.classList.add("temp-min");
 
-            tempMax.textContent = `${Math.trunc(dayData.tempmax)}°`;
-            tempMin.textContent = `${Math.trunc(dayData.tempmin)}°`;
+            tempMax.textContent = `${Math.trunc(dayData.tempmax)}`;
+            tempMin.textContent = `${Math.trunc(dayData.tempmin)}`;
 
             weeklyTempContainer.appendChild(tempMax);
+            weeklyTempContainer.appendChild(degreeOne);
             weeklyTempContainer.appendChild(tempMin);
+            weeklyTempContainer.appendChild(degreeTwo);
 
             const cond = document.createElement("p");
             cond.classList.add("card-text");
@@ -382,7 +427,6 @@
       }
 
       weeklyForecast();
-
       updateDisplay();
     </script>
   </body>
