@@ -169,7 +169,7 @@
           let uvIndex = response.currentConditions.uvindex;
           let epoch = response.currentConditions.datetimeEpoch;
           let iconName = response.currentConditions.icon;
-          const iconPath = `./assets/images/weather-images/${iconName}.png`;
+          const iconPath = `./assets/images/weather-images/${iconName}.svg`;
           document.getElementById("weatherIcon").src = iconPath;
 
           degrees.textContent = `${temperature}`;
